@@ -85,6 +85,25 @@ const ansurAPI = {
     list: (): Promise<HistoryEntry[]> => ipcRenderer.invoke('records:list'),
   },
 
+  // ── Application ───────────────────────────────────────────────────────────
+  app: {
+    /** Retourne les infos d'environnement (versions, chemins de données). */
+    getInfo: (): Promise<{
+      appVersion: string;
+      electronVersion: string;
+      nodeVersion: string;
+      dataRoot: string;
+      templatesDir: string;
+      sequencesDir: string;
+      recordsDir: string;
+      auditLogPath: string;
+    }> => ipcRenderer.invoke('app:info'),
+
+    /** Ouvre le dossier de données dans l'Explorateur Windows. */
+    openDataFolder: (): Promise<{ success: true } | { success: false; error: string }> =>
+      ipcRenderer.invoke('app:open-data-folder'),
+  },
+
   // ── Journal d'audit ───────────────────────────────────────────────────────
   audit: {
     /** Retourne toutes les entrées du journal d'audit, du plus récent au plus ancien. */

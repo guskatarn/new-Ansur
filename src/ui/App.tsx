@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { DutInfo, HistoryEntry, TestTemplate } from '../domain/types.js';
 import type { DraftResult } from './runnerTypes.js';
 import { AuditLogView } from './views/AuditLogView.js';
+import { SettingsView } from './views/SettingsView.js';
 import { DutInfoView } from './views/DutInfoView.js';
 import { HistoryDetailView } from './views/HistoryDetailView.js';
 import { HistoryListView } from './views/HistoryListView.js';
@@ -18,7 +19,8 @@ type Screen =
   | { view: 'summary'; template: TestTemplate; dut: DutInfo; executedBy: string; draftResults: DraftResult[] }
   | { view: 'history-list' }
   | { view: 'history-detail'; entry: HistoryEntry }
-  | { view: 'audit-log' };
+  | { view: 'audit-log' }
+  | { view: 'settings' };
 
 export function App(): React.ReactElement {
   const [screen, setScreen] = useState<Screen>({ view: 'list' });
@@ -33,6 +35,7 @@ export function App(): React.ReactElement {
           <AppHeader
             onHistory={() => { setScreen({ view: 'history-list' }); }}
             onAudit={() => { setScreen({ view: 'audit-log' }); }}
+            onSettings={() => { setScreen({ view: 'settings' }); }}
           />
           <TemplateListView
             onSelect={(t) => { setScreen({ view: 'editor', template: t }); }}
@@ -112,15 +115,20 @@ export function App(): React.ReactElement {
 
     case 'audit-log':
       return <AuditLogView onBack={goList} />;
+
+    case 'settings':
+      return <SettingsView onBack={goList} />;
   }
 }
 
 function AppHeader({
   onHistory,
   onAudit,
+  onSettings,
 }: {
   onHistory: () => void;
   onAudit: () => void;
+  onSettings: () => void;
 }): React.ReactElement {
   return (
     <header style={headerStyle}>
@@ -132,6 +140,9 @@ function AppHeader({
       </button>
       <button type="button" onClick={onAudit} style={btnHistoryStyle}>
         Journal d'audit
+      </button>
+      <button type="button" onClick={onSettings} style={btnHistoryStyle}>
+        ⚙ Paramètres
       </button>
     </header>
   );

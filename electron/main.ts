@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { initDataStore, type DataStorePaths } from '../src/persistence/DataStore.js';
@@ -70,6 +70,24 @@ app.whenReady().then(async () => {
 });
 
 ipcMain.handle('data-store:get-paths', () => dataStorePaths);
+
+ipcMain.handle('app:info', () => ({
+  appVersion: app.getVersion(),
+  electronVersion: process.versions.electron,
+  nodeVersion: process.versions.node,
+  dataRoot: dataStorePaths?.root ?? '—',
+  templatesDir: dataStorePaths?.templatesDir ?? '—',
+  sequencesDir: dataStorePaths?.sequencesDir ?? '—',
+  recordsDir: dataStorePaths?.recordsDir ?? '—',
+  auditLogPath: dataStorePaths?.auditLogPath ?? '—',
+}));
+
+ipcMain.handle('app:open-data-folder', async (): Promise<{ success: true } | { success: false; error: string }> => {
+  const dir = dataStorePaths?.root;
+  if (dir === undefined) return { success: false, error: 'Dossier de données non initialisé.' };
+  const err = await shell.openPath(dir);
+  return err === '' ? { success: true } : { success: false, error: err };
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
