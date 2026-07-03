@@ -1,4 +1,5 @@
 import { dialog, ipcMain } from 'electron';
+import { randomUUID } from 'node:crypto';
 import type { TestTemplate } from '../src/domain/types.js';
 import { parseMttFile } from '../src/import/MttParser.js';
 import { FileTemplateRepository } from '../src/persistence/TemplateRepository.js';
@@ -27,6 +28,66 @@ export function registerTemplateHandlers(templatesDir: string): void {
     async (_event, template: TestTemplate): Promise<{ success: true }> => {
       await repo!.save(template);
       return { success: true };
+    },
+  );
+
+  ipcMain.handle(
+    'templates:delete',
+    async (
+      _event,
+      id: string,
+    ): Promise<{ canceled: true } | { success: true } | { success: false; error: string }> => {
+      const template = await repo!.findLatestVersion(id);
+      const name = template?.name ?? id;
+
+      const { response } = await dialog.showMessageBox({
+        type: 'warning',
+        title: 'Supprimer le template',
+        message: `Supprimer « ${name} » ?`,
+        detail:
+          'Toutes les versions de ce template seront supprimées définitivement.\n' +
+          'Les records de test associés restent conservés.',
+        buttons: ['Annuler', 'Supprimer'],
+        defaultId: 0,
+        cancelId: 0,
+      });
+
+      if (response === 0) return { canceled: true };
+
+      try {
+        await repo!.deleteAll(id);
+        return { success: true };
+      } catch (err) {
+        return { success: false, error: String(err) };
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'templates:duplicate',
+    async (
+      _event,
+      id: string,
+    ): Promise<{ success: true; template: TestTemplate } | { success: false; error: string }> => {
+      const original = await repo!.findLatestVersion(id);
+      if (original === undefined) {
+        return { success: false, error: 'Template introuvable.' };
+      }
+
+      const copy: TestTemplate = {
+        ...original,
+        id: randomUUID(),
+        name: `Copie de ${original.name}`,
+        version: 1,
+        createdAt: new Date().toISOString(),
+      };
+
+      try {
+        await repo!.save(copy);
+        return { success: true, template: copy };
+      } catch (err) {
+        return { success: false, error: String(err) };
+      }
     },
   );
 

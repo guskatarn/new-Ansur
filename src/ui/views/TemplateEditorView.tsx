@@ -7,13 +7,17 @@ interface Props {
   onBack: () => void;
   onSaved: (updated: TestTemplate) => void;
   onRun?: (template: TestTemplate) => void;
+  onDuplicated?: (copy: TestTemplate) => void;
+  onDeleted?: () => void;
 }
 
-export function TemplateEditorView({ template, onBack, onSaved, onRun }: Props): React.ReactElement {
+export function TemplateEditorView({ template, onBack, onSaved, onRun, onDuplicated, onDeleted }: Props): React.ReactElement {
   const [draft, setDraft] = useState<TestTemplate>(template);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const [duplicating, setDuplicating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     setDraft(template);
@@ -34,6 +38,29 @@ export function TemplateEditorView({ template, onBack, onSaved, onRun }: Props):
     }));
     setDirty(true);
     setSaveMessage(null);
+  };
+
+  const handleDuplicate = async (): Promise<void> => {
+    setDuplicating(true);
+    const result = await window.ansurAPI.templates.duplicate(draft.id);
+    setDuplicating(false);
+    if (result.success) {
+      onDuplicated?.(result.template);
+    } else {
+      setSaveMessage({ text: `Erreur duplication : ${result.error}`, isError: true });
+    }
+  };
+
+  const handleDelete = async (): Promise<void> => {
+    setDeleting(true);
+    const result = await window.ansurAPI.templates.delete(draft.id);
+    setDeleting(false);
+    if ('canceled' in result) return;
+    if (result.success) {
+      onDeleted?.();
+    } else {
+      setSaveMessage({ text: `Erreur suppression : ${result.error}`, isError: true });
+    }
   };
 
   const handleSave = async (): Promise<void> => {
@@ -98,6 +125,28 @@ export function TemplateEditorView({ template, onBack, onSaved, onRun }: Props):
               style={dirty ? styles.btnDisabled : styles.btnRun}
             >
               ▶ Exécuter
+            </button>
+          )}
+          {onDuplicated !== undefined && (
+            <button
+              type="button"
+              onClick={() => { void handleDuplicate(); }}
+              disabled={duplicating || dirty}
+              title={dirty ? 'Sauvegardez avant de dupliquer' : 'Créer une copie de ce template'}
+              style={duplicating || dirty ? styles.btnDisabled : styles.btnDuplicate}
+            >
+              {duplicating ? 'Duplication…' : '⧉ Dupliquer'}
+            </button>
+          )}
+          {onDeleted !== undefined && (
+            <button
+              type="button"
+              onClick={() => { void handleDelete(); }}
+              disabled={deleting}
+              title="Supprimer définitivement ce template"
+              style={deleting ? styles.btnDisabled : styles.btnDelete}
+            >
+              {deleting ? 'Suppression…' : '🗑 Supprimer'}
             </button>
           )}
         </div>
@@ -277,6 +326,26 @@ const styles = {
     background: '#198754',
     color: '#fff',
     border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '13px',
+    fontWeight: 500 as const,
+  },
+  btnDuplicate: {
+    padding: '7px 14px',
+    background: '#6f42c1',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '13px',
+    fontWeight: 500 as const,
+  },
+  btnDelete: {
+    padding: '7px 14px',
+    background: 'transparent',
+    color: '#dc3545',
+    border: '1px solid #dc3545',
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '13px',

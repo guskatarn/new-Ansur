@@ -42,6 +42,21 @@ const ansurAPI = {
     save: (template: TestTemplate): Promise<{ success: true }> =>
       ipcRenderer.invoke('templates:save', template),
 
+    /**
+     * Affiche un dialogue de confirmation natif, puis supprime toutes les
+     * versions du template (dossier complet sur le disque).
+     */
+    delete: (
+      id: string,
+    ): Promise<{ canceled: true } | { success: true } | { success: false; error: string }> =>
+      ipcRenderer.invoke('templates:delete', id),
+
+    /** Crée une copie du template avec un nouvel id et version 1. */
+    duplicate: (
+      id: string,
+    ): Promise<{ success: true; template: TestTemplate } | { success: false; error: string }> =>
+      ipcRenderer.invoke('templates:duplicate', id),
+
     /** Ouvre la boîte de dialogue de sélection de fichier .mtt et importe. */
     importMtt: (): Promise<
       | { canceled: true }

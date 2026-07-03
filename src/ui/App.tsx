@@ -43,6 +43,8 @@ export function App(): React.ReactElement {
           onBack={goList}
           onSaved={(updated) => { setScreen({ view: 'editor', template: updated }); }}
           onRun={goRun}
+          onDuplicated={(copy) => { setScreen({ view: 'editor', template: copy }); }}
+          onDeleted={goList}
         />
       );
 

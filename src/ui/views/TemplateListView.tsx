@@ -12,6 +12,7 @@ export function TemplateListView({ onSelect, onRun }: Props): React.ReactElement
   const [error, setError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [importMessage, setImportMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const loadTemplates = useCallback(async () => {
     setLoading(true);
@@ -29,6 +30,19 @@ export function TemplateListView({ onSelect, onRun }: Props): React.ReactElement
   useEffect(() => {
     void loadTemplates();
   }, [loadTemplates]);
+
+  const handleDelete = async (t: TestTemplate): Promise<void> => {
+    setDeletingId(t.id);
+    setImportMessage(null);
+    const result = await window.ansurAPI.templates.delete(t.id);
+    setDeletingId(null);
+    if ('canceled' in result) return;
+    if (result.success) {
+      void loadTemplates();
+    } else {
+      setImportMessage({ text: `Erreur suppression : ${result.error}`, isError: true });
+    }
+  };
 
   const handleImport = async (): Promise<void> => {
     setImporting(true);
@@ -109,6 +123,15 @@ export function TemplateListView({ onSelect, onRun }: Props): React.ReactElement
                     ▶ Exécuter
                   </button>
                 )}
+                <button
+                  type="button"
+                  onClick={() => { void handleDelete(t); }}
+                  disabled={deletingId === t.id}
+                  style={deletingId === t.id ? styles.btnDeleteDisabled : styles.btnDelete}
+                  title="Supprimer ce template"
+                >
+                  🗑
+                </button>
               </div>
             </li>
           ))}
@@ -211,6 +234,26 @@ const styles = {
   templateMeta: {
     fontSize: '12px',
     color: '#6c757d',
+  },
+  btnDelete: {
+    padding: '0 12px',
+    background: 'transparent',
+    color: '#dc3545',
+    border: '1px solid #dc3545',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    flexShrink: 0,
+  },
+  btnDeleteDisabled: {
+    padding: '0 12px',
+    background: '#e9ecef',
+    color: '#adb5bd',
+    border: '1px solid #dee2e6',
+    borderRadius: '6px',
+    cursor: 'not-allowed',
+    fontSize: '14px',
+    flexShrink: 0,
   },
   btnPrimary: {
     padding: '8px 16px',

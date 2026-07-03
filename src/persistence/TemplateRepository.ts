@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { TestTemplate } from '../domain/types.js';
 import { listDirectories, listJsonFiles, readJsonFile, sanitizeSegment, writeJsonFileAtomic } from './FileStore.js';
@@ -8,6 +9,8 @@ export interface TemplateRepository {
   findLatestVersion(id: string): Promise<TestTemplate | undefined>;
   findByIdAndVersion(id: string, version: number): Promise<TestTemplate | undefined>;
   listAll(): Promise<TestTemplate[]>;
+  /** Supprime toutes les versions d'un template (dossier complet). */
+  deleteAll(id: string): Promise<void>;
 }
 
 /**
@@ -44,6 +47,10 @@ export class FileTemplateRepository implements TemplateRepository {
       if (latest) templates.push(latest);
     }
     return templates.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  async deleteAll(id: string): Promise<void> {
+    await fs.rm(this.templateDirPath(id), { recursive: true, force: true });
   }
 
   private async listVersions(id: string): Promise<number[]> {
