@@ -18,6 +18,7 @@ export function TemplateEditorView({ template, onBack, onSaved, onRun, onDuplica
   const [saveMessage, setSaveMessage] = useState<{ text: string; isError: boolean } | null>(null);
   const [duplicating, setDuplicating] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     setDraft(template);
@@ -38,6 +39,19 @@ export function TemplateEditorView({ template, onBack, onSaved, onRun, onDuplica
     }));
     setDirty(true);
     setSaveMessage(null);
+  };
+
+  const handleExport = async (): Promise<void> => {
+    setExporting(true);
+    setSaveMessage(null);
+    const result = await window.ansurAPI.templates.export(draft);
+    setExporting(false);
+    if ('canceled' in result) return;
+    if (result.success) {
+      setSaveMessage({ text: `Exporté : ${result.path}`, isError: false });
+    } else {
+      setSaveMessage({ text: `Erreur export : ${result.error}`, isError: true });
+    }
   };
 
   const handleDuplicate = async (): Promise<void> => {
@@ -127,6 +141,15 @@ export function TemplateEditorView({ template, onBack, onSaved, onRun, onDuplica
               ▶ Exécuter
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => { void handleExport(); }}
+            disabled={exporting}
+            title="Enregistrer ce template dans un fichier .json"
+            style={exporting ? styles.btnDisabled : styles.btnExport}
+          >
+            {exporting ? 'Export…' : '↓ Exporter JSON'}
+          </button>
           {onDuplicated !== undefined && (
             <button
               type="button"
@@ -326,6 +349,16 @@ const styles = {
     background: '#198754',
     color: '#fff',
     border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '13px',
+    fontWeight: 500 as const,
+  },
+  btnExport: {
+    padding: '7px 14px',
+    background: 'transparent',
+    color: '#0056b3',
+    border: '1px solid #0056b3',
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '13px',

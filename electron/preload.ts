@@ -43,6 +43,15 @@ const ansurAPI = {
       ipcRenderer.invoke('templates:save', template),
 
     /**
+     * Ouvre la boîte de dialogue "Enregistrer sous" et exporte le template
+     * courant en fichier .json lisible.
+     */
+    export: (
+      template: TestTemplate,
+    ): Promise<{ canceled: true } | { success: true; path: string } | { success: false; error: string }> =>
+      ipcRenderer.invoke('templates:export', template),
+
+    /**
      * Affiche un dialogue de confirmation natif, puis supprime toutes les
      * versions du template (dossier complet sur le disque).
      */

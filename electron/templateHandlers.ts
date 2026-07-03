@@ -1,5 +1,6 @@
 import { dialog, ipcMain } from 'electron';
 import { randomUUID } from 'node:crypto';
+import fs from 'node:fs/promises';
 import type { TestTemplate } from '../src/domain/types.js';
 import { parseMttFile } from '../src/import/MttParser.js';
 import { FileTemplateRepository } from '../src/persistence/TemplateRepository.js';
@@ -85,6 +86,28 @@ export function registerTemplateHandlers(templatesDir: string): void {
       try {
         await repo!.save(copy);
         return { success: true, template: copy };
+      } catch (err) {
+        return { success: false, error: String(err) };
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'templates:export',
+    async (
+      _event,
+      template: TestTemplate,
+    ): Promise<{ canceled: true } | { success: true; path: string } | { success: false; error: string }> => {
+      const safeName = template.name.replace(/[/\\:*?"<>|]/g, '-');
+      const { canceled, filePath } = await dialog.showSaveDialog({
+        title: 'Exporter le template',
+        defaultPath: `${safeName}-v${template.version}.json`,
+        filters: [{ name: 'Fichier JSON', extensions: ['json'] }],
+      });
+      if (canceled || filePath === undefined) return { canceled: true };
+      try {
+        await fs.writeFile(filePath, JSON.stringify(template, null, 2), 'utf-8');
+        return { success: true, path: filePath };
       } catch (err) {
         return { success: false, error: String(err) };
       }
