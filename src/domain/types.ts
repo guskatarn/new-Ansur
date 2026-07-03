@@ -80,3 +80,15 @@ export interface TestRecord {
   readonly results: readonly ElementResult[];
   readonly overallStatus: ElementResultStatus;
 }
+
+/** Vue jointe record + séquence, utilisée par l'écran Historique. */
+export interface HistoryEntry {
+  readonly recordId: string;
+  readonly executedAt: string;
+  readonly executedBy: string;
+  readonly overallStatus: ElementResultStatus;
+  readonly dut: DutInfo;
+  readonly templateId: string;
+  readonly templateVersion: number;
+  readonly results: readonly ElementResult[];
+}

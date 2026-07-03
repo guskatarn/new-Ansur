@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import type { DutInfo, TestTemplate } from '../domain/types.js';
+import type { DutInfo, HistoryEntry, TestTemplate } from '../domain/types.js';
 import type { DraftResult } from './runnerTypes.js';
 import { DutInfoView } from './views/DutInfoView.js';
+import { HistoryDetailView } from './views/HistoryDetailView.js';
+import { HistoryListView } from './views/HistoryListView.js';
 import { RunSummaryView } from './views/RunSummaryView.js';
 import { TemplateEditorView } from './views/TemplateEditorView.js';
 import { TemplateListView } from './views/TemplateListView.js';
@@ -12,7 +14,9 @@ type Screen =
   | { view: 'editor'; template: TestTemplate }
   | { view: 'dut-info'; template: TestTemplate }
   | { view: 'runner'; template: TestTemplate; dut: DutInfo; executedBy: string }
-  | { view: 'summary'; template: TestTemplate; dut: DutInfo; executedBy: string; draftResults: DraftResult[] };
+  | { view: 'summary'; template: TestTemplate; dut: DutInfo; executedBy: string; draftResults: DraftResult[] }
+  | { view: 'history-list' }
+  | { view: 'history-detail'; entry: HistoryEntry };
 
 export function App(): React.ReactElement {
   const [screen, setScreen] = useState<Screen>({ view: 'list' });
@@ -24,7 +28,7 @@ export function App(): React.ReactElement {
     case 'list':
       return (
         <div style={{ fontFamily: 'system-ui, sans-serif' }}>
-          <AppHeader />
+          <AppHeader onHistory={() => { setScreen({ view: 'history-list' }); }} />
           <TemplateListView
             onSelect={(t) => { setScreen({ view: 'editor', template: t }); }}
             onRun={goRun}
@@ -82,14 +86,34 @@ export function App(): React.ReactElement {
           onReturnToList={goList}
         />
       );
+
+    case 'history-list':
+      return (
+        <HistoryListView
+          onSelect={(entry) => { setScreen({ view: 'history-detail', entry }); }}
+          onBack={goList}
+        />
+      );
+
+    case 'history-detail':
+      return (
+        <HistoryDetailView
+          entry={screen.entry}
+          onBack={() => { setScreen({ view: 'history-list' }); }}
+        />
+      );
   }
 }
 
-function AppHeader(): React.ReactElement {
+function AppHeader({ onHistory }: { onHistory: () => void }): React.ReactElement {
   return (
     <header style={headerStyle}>
       <span style={logoStyle}>ANSUR</span>
       <span style={subStyle}>Remplacement ANSUR</span>
+      <div style={{ flex: 1 }} />
+      <button type="button" onClick={onHistory} style={btnHistoryStyle}>
+        Historique
+      </button>
     </header>
   );
 }
@@ -114,4 +138,14 @@ const logoStyle: React.CSSProperties = {
 const subStyle: React.CSSProperties = {
   fontSize: '13px',
   color: '#adb5bd',
+};
+
+const btnHistoryStyle: React.CSSProperties = {
+  padding: '5px 14px',
+  background: 'transparent',
+  border: '1px solid #495057',
+  borderRadius: '4px',
+  color: '#adb5bd',
+  cursor: 'pointer',
+  fontSize: '13px',
 };

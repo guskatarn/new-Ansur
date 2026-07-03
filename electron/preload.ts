@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import type { DutInfo, ElementResult, ElementResultStatus, TestTemplate } from '../src/domain/types.js';
+import type { DutInfo, ElementResult, ElementResultStatus, HistoryEntry, TestTemplate } from '../src/domain/types.js';
 
 /**
  * API exposée au renderer (React) via window.ansurAPI.
@@ -65,6 +65,9 @@ const ansurAPI = {
       overallStatus: ElementResultStatus;
     }): Promise<{ success: true; recordId: string; executedAt: string }> =>
       ipcRenderer.invoke('records:save-run', params),
+
+    /** Retourne tous les records, du plus récent au plus ancien. */
+    list: (): Promise<HistoryEntry[]> => ipcRenderer.invoke('records:list'),
   },
 
   // ── Instruments ───────────────────────────────────────────────────────────

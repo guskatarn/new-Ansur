@@ -1,11 +1,21 @@
 import { ipcMain } from 'electron';
 import { randomUUID } from 'node:crypto';
-import type { DutInfo, ElementResult, ElementResultStatus, TestRecord, TestSequence } from '../src/domain/types.js';
+import type {
+  DutInfo,
+  ElementResult,
+  ElementResultStatus,
+  HistoryEntry,
+  TestRecord,
+  TestSequence,
+} from '../src/domain/types.js';
+import { listDirectories, listJsonFiles, readJsonFile } from '../src/persistence/FileStore.js';
 import { FileSequenceRepository } from '../src/persistence/SequenceRepository.js';
 import { FileTestRecordRepository } from '../src/persistence/TestRecordRepository.js';
+import path from 'node:path';
 
 let sequenceRepo: FileSequenceRepository | null = null;
 let recordRepo: FileTestRecordRepository | null = null;
+let _recordsDir: string | null = null;
 
 interface SaveRunParams {
   dut: DutInfo;
@@ -23,6 +33,7 @@ export function registerRecordHandlers(
 ): void {
   sequenceRepo = new FileSequenceRepository(sequencesDir);
   recordRepo = new FileTestRecordRepository(recordsDir, auditLogPath);
+  _recordsDir = recordsDir;
 
   ipcMain.handle(
     'records:save-run',
@@ -56,4 +67,32 @@ export function registerRecordHandlers(
       return { success: true, recordId, executedAt: now };
     },
   );
+
+  ipcMain.handle('records:list', async (): Promise<HistoryEntry[]> => {
+    const dir = _recordsDir!;
+    const dutDirs = await listDirectories(dir);
+    const entries: HistoryEntry[] = [];
+
+    for (const dutDir of dutDirs) {
+      const dutDirPath = path.join(dir, dutDir);
+      const files = await listJsonFiles(dutDirPath);
+      for (const file of files) {
+        const record = await readJsonFile<TestRecord>(path.join(dutDirPath, file));
+        const sequence = await sequenceRepo!.findById(record.sequenceId);
+        if (sequence === undefined) continue;
+        entries.push({
+          recordId: record.id,
+          executedAt: record.executedAt,
+          executedBy: record.executedBy,
+          overallStatus: record.overallStatus,
+          dut: sequence.dut,
+          templateId: sequence.templateId,
+          templateVersion: sequence.templateVersion,
+          results: record.results,
+        });
+      }
+    }
+
+    return entries.sort((a, b) => b.executedAt.localeCompare(a.executedAt));
+  });
 }
