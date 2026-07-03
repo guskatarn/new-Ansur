@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import type { DutInfo, ElementResult, ElementResultStatus, HistoryEntry, TestTemplate } from '../src/domain/types.js';
+import type { AuditEntry, DutInfo, ElementResult, ElementResultStatus, HistoryEntry, TestTemplate } from '../src/domain/types.js';
 
 /**
  * API exposée au renderer (React) via window.ansurAPI.
@@ -83,6 +83,12 @@ const ansurAPI = {
 
     /** Retourne tous les records, du plus récent au plus ancien. */
     list: (): Promise<HistoryEntry[]> => ipcRenderer.invoke('records:list'),
+  },
+
+  // ── Journal d'audit ───────────────────────────────────────────────────────
+  audit: {
+    /** Retourne toutes les entrées du journal d'audit, du plus récent au plus ancien. */
+    list: (): Promise<AuditEntry[]> => ipcRenderer.invoke('audit:list'),
   },
 
   // ── Instruments ───────────────────────────────────────────────────────────

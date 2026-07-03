@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { initDataStore, type DataStorePaths } from '../src/persistence/DataStore.js';
+import { registerAuditHandlers } from './auditHandlers.js';
 import { registerInstrumentHandlers } from './instrumentHandlers.js';
 import { registerRecordHandlers } from './recordHandlers.js';
 import { registerReportHandlers } from './reportHandlers.js';
@@ -58,6 +59,7 @@ app.whenReady().then(async () => {
   registerTemplateHandlers(dataStorePaths.templatesDir);
   registerRecordHandlers(dataStorePaths.sequencesDir, dataStorePaths.recordsDir, dataStorePaths.auditLogPath);
   registerReportHandlers();
+  registerAuditHandlers(dataStorePaths.auditLogPath);
   createWindow();
 
   app.on('activate', () => {

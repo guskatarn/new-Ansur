@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { DutInfo, HistoryEntry, TestTemplate } from '../domain/types.js';
 import type { DraftResult } from './runnerTypes.js';
+import { AuditLogView } from './views/AuditLogView.js';
 import { DutInfoView } from './views/DutInfoView.js';
 import { HistoryDetailView } from './views/HistoryDetailView.js';
 import { HistoryListView } from './views/HistoryListView.js';
@@ -16,7 +17,8 @@ type Screen =
   | { view: 'runner'; template: TestTemplate; dut: DutInfo; executedBy: string }
   | { view: 'summary'; template: TestTemplate; dut: DutInfo; executedBy: string; draftResults: DraftResult[] }
   | { view: 'history-list' }
-  | { view: 'history-detail'; entry: HistoryEntry };
+  | { view: 'history-detail'; entry: HistoryEntry }
+  | { view: 'audit-log' };
 
 export function App(): React.ReactElement {
   const [screen, setScreen] = useState<Screen>({ view: 'list' });
@@ -28,7 +30,10 @@ export function App(): React.ReactElement {
     case 'list':
       return (
         <div style={{ fontFamily: 'system-ui, sans-serif' }}>
-          <AppHeader onHistory={() => { setScreen({ view: 'history-list' }); }} />
+          <AppHeader
+            onHistory={() => { setScreen({ view: 'history-list' }); }}
+            onAudit={() => { setScreen({ view: 'audit-log' }); }}
+          />
           <TemplateListView
             onSelect={(t) => { setScreen({ view: 'editor', template: t }); }}
             onRun={goRun}
@@ -104,10 +109,19 @@ export function App(): React.ReactElement {
           onBack={() => { setScreen({ view: 'history-list' }); }}
         />
       );
+
+    case 'audit-log':
+      return <AuditLogView onBack={goList} />;
   }
 }
 
-function AppHeader({ onHistory }: { onHistory: () => void }): React.ReactElement {
+function AppHeader({
+  onHistory,
+  onAudit,
+}: {
+  onHistory: () => void;
+  onAudit: () => void;
+}): React.ReactElement {
   return (
     <header style={headerStyle}>
       <span style={logoStyle}>ANSUR</span>
@@ -115,6 +129,9 @@ function AppHeader({ onHistory }: { onHistory: () => void }): React.ReactElement
       <div style={{ flex: 1 }} />
       <button type="button" onClick={onHistory} style={btnHistoryStyle}>
         Historique
+      </button>
+      <button type="button" onClick={onAudit} style={btnHistoryStyle}>
+        Journal d'audit
       </button>
     </header>
   );

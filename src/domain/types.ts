@@ -81,6 +81,14 @@ export interface TestRecord {
   readonly overallStatus: ElementResultStatus;
 }
 
+/** Entrée du journal d'audit (JSONL — une ligne = un événement). */
+export interface AuditEntry {
+  readonly occurredAt: string; // ISO 8601
+  readonly actor: string;
+  readonly action: string;
+  readonly details?: unknown;
+}
+
 /** Vue jointe record + séquence, utilisée par l'écran Historique. */
 export interface HistoryEntry {
   readonly recordId: string;
