@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { DutInfo, HistoryEntry, TestTemplate } from '../domain/types.js';
 import type { DraftResult } from './runnerTypes.js';
 import { AuditLogView } from './views/AuditLogView.js';
-import { SettingsView } from './views/SettingsView.js';
 import { DutInfoView } from './views/DutInfoView.js';
 import { HistoryDetailView } from './views/HistoryDetailView.js';
 import { HistoryListView } from './views/HistoryListView.js';
+import { InstrumentView } from './views/InstrumentView.js';
 import { RunSummaryView } from './views/RunSummaryView.js';
+import { SettingsView } from './views/SettingsView.js';
 import { TemplateEditorView } from './views/TemplateEditorView.js';
 import { TemplateListView } from './views/TemplateListView.js';
 import { TestRunnerView } from './views/TestRunnerView.js';
@@ -20,10 +21,24 @@ type Screen =
   | { view: 'history-list' }
   | { view: 'history-detail'; entry: HistoryEntry }
   | { view: 'audit-log' }
-  | { view: 'settings' };
+  | { view: 'settings' }
+  | { view: 'instrument' };
 
 export function App(): React.ReactElement {
   const [screen, setScreen] = useState<Screen>({ view: 'list' });
+  const [instrumentConnected, setInstrumentConnected] = useState(false);
+
+  // Polling du statut ESA620 toutes les 3 s — alimente le badge dans le header.
+  useEffect(() => {
+    const poll = (): void => {
+      window.ansurAPI.instruments.statusEsa620()
+        .then((s) => { setInstrumentConnected(s.connected); })
+        .catch(() => {});
+    };
+    poll();
+    const id = setInterval(poll, 3000);
+    return () => { clearInterval(id); };
+  }, []);
 
   const goList = () => { setScreen({ view: 'list' }); };
   const goRun = (template: TestTemplate) => { setScreen({ view: 'dut-info', template }); };
@@ -33,6 +48,8 @@ export function App(): React.ReactElement {
       return (
         <div style={{ fontFamily: 'system-ui, sans-serif' }}>
           <AppHeader
+            instrumentConnected={instrumentConnected}
+            onInstrument={() => { setScreen({ view: 'instrument' }); }}
             onHistory={() => { setScreen({ view: 'history-list' }); }}
             onAudit={() => { setScreen({ view: 'audit-log' }); }}
             onSettings={() => { setScreen({ view: 'settings' }); }}
@@ -118,14 +135,21 @@ export function App(): React.ReactElement {
 
     case 'settings':
       return <SettingsView onBack={goList} />;
+
+    case 'instrument':
+      return <InstrumentView onBack={goList} />;
   }
 }
 
 function AppHeader({
+  instrumentConnected,
+  onInstrument,
   onHistory,
   onAudit,
   onSettings,
 }: {
+  instrumentConnected: boolean;
+  onInstrument: () => void;
   onHistory: () => void;
   onAudit: () => void;
   onSettings: () => void;
@@ -135,13 +159,26 @@ function AppHeader({
       <span style={logoStyle}>ANSUR</span>
       <span style={subStyle}>Remplacement ANSUR</span>
       <div style={{ flex: 1 }} />
-      <button type="button" onClick={onHistory} style={btnHistoryStyle}>
+      <button type="button" onClick={onInstrument} style={btnHeaderStyle}>
+        <span style={{
+          display: 'inline-block',
+          width: '7px',
+          height: '7px',
+          borderRadius: '50%',
+          background: instrumentConnected ? '#28a745' : '#dc3545',
+          marginRight: '6px',
+          verticalAlign: 'middle',
+          flexShrink: 0,
+        }} />
+        ESA620
+      </button>
+      <button type="button" onClick={onHistory} style={btnHeaderStyle}>
         Historique
       </button>
-      <button type="button" onClick={onAudit} style={btnHistoryStyle}>
+      <button type="button" onClick={onAudit} style={btnHeaderStyle}>
         Journal d'audit
       </button>
-      <button type="button" onClick={onSettings} style={btnHistoryStyle}>
+      <button type="button" onClick={onSettings} style={btnHeaderStyle}>
         ⚙ Paramètres
       </button>
     </header>
@@ -170,7 +207,9 @@ const subStyle: React.CSSProperties = {
   color: '#adb5bd',
 };
 
-const btnHistoryStyle: React.CSSProperties = {
+const btnHeaderStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
   padding: '5px 14px',
   background: 'transparent',
   border: '1px solid #495057',
