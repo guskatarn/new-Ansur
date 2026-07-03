@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="iso8859-1"?>
+
+<METRONFile Type="Template" Version="2.0.1">
+   <Application Name="Ansur" Version="2.9.0">
+      <Kernel Name="CTestExecutive" Version="1.2.0"/>
+      <Interface Name="XML Parser" Version="2.0.1"/>
+      <PlugIn Name="ESA620" Version="1.1.4"/>
+   </Application>
+   <Template Name="VDE 751.1 - CL2.mtt">
+      <Properties>
+         <StoreRTF/>
+      </Properties>
+      <TemplateData>
+         <TestElement ID="1">
+            <PlugIn Name="ESA620" TestID="100"/>
+            <Info>
+               <Type>Auto Sequence</Type>
+               <Name>VDE 751.1 - CL2</Name>
+               <Procedure Format="1">
+                  <![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset0 Verdana;}{\f1\fnil\fcharset0 MS Sans Serif;}}
+{\colortbl ;\red0\green0\blue0;}
+\viewkind4\uc1\pard\cf1\lang1033\f0\fs20 (1) Connect the DUT to the ESA620 as indicated in the operators manual.
+\par (2) Ensure that DUT power is On.
+\par (3) Click module setup and specify the patient leads that are to be tested.
+\par (4) Connect patient leads as indicated to the right.
+\par (5) Click \b Start Test\b0  to perform the safety test.
+\par \cf0\f1 
+\par \fs20 
+\par }
+]]>
+               </Procedure>
+            </Info>
+            <Filter>
+               <IncludeInReport/>
+            </Filter>
+            <ExpectedResult>
+               <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                  <Limit Key="::ST"/>
+               </Standard>
+            </ExpectedResult>
+            <PlugInData PlugIn="ESA620">
+               <ValueFilter>None</ValueFilter>
+               <EnableBtn Skip="True" NA="True" Step="True"/>
+               <ModuleOptions Sep="False" Exp="False" Stop="False" Override="True">
+                  <PlugInData PlugIn="ESA620">
+                     <ModuleSetup/>
+                  </PlugInData>
+               </ModuleOptions>
+               <TestOptions MAPVoltage="0" MAPPolarity="0" MAPCurrent="0" PLConfiguration="0" Duration="2" PowerOff="0">
+                  <Run Opt="True" HaltOnFail="True" MultiPE="False" TotalLeakage="False" MeasType="0" TestVoltage="0" AppliedParts="0"/>
+                  <StopOnPC Before="False" After="False"/>
+                  <Delay On="2" Off="0"/>
+               </TestOptions>
+            </PlugInData>
+            <TestElement ID="2">
+               <PlugIn Name="ESA620" TestID="200"/>
+               <Info>
+                  <Type>Mains Voltage</Type>
+                  <Name>Mains Voltage</Name>
+               </Info>
+               <Filter>
+                  <IncludeInReport/>
+               </Filter>
+               <ExpectedResult>
+                  <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                     <Limit Key="::ST">
+                        <Unit>V</Unit>
+                     </Limit>
+                  </Standard>
+               </ExpectedResult>
+               <PlugInData PlugIn="ESA620">
+                  <ValueFilter>None</ValueFilter>
+                  <EnableBtn Skip="True" NA="True" Step="True"/>
+                  <ModuleOptions Sep="False" Exp="False" Stop="False" Override="True">
+                     <PlugInData PlugIn="ESA620">
+                        <ModuleSetup/>
+                     </PlugInData>
+                  </ModuleOptions>
+                  <TestOptions MAPVoltage="0" MAPPolarity="0" MAPCurrent="0" PLConfiguration="0" Duration="2" PowerOff="0">
+                     <Run Opt="False" HaltOnFail="True" MultiPE="False" TotalLeakage="False" MeasType="0" TestVoltage="0" AppliedParts="0"/>
+                     <StopOnPC Before="False" After="False"/>
+                     <Delay On="2" Off="0"/>
+                  </TestOptions>
+               </PlugInData>
+               <TestElement ID="3">
+                  <PlugIn Name="ESA620" TestID="210"/>
+                  <Info>
+                     <Type>Mains Voltage</Type>
+                     <Parameter>Live to Neutral</Parameter>
+                     <Name>Live to Neutral</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                        <Limit Key="::ST">
+                           <Unit>V</Unit>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+               <TestElement ID="4">
+                  <PlugIn Name="ESA620" TestID="220"/>
+                  <Info>
+                     <Type>Mains Voltage</Type>
+                     <Parameter>Neutral to Earth</Parameter>
+                     <Name>Neutral to Earth</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                        <Limit Key="::ST">
+                           <Unit>V</Unit>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+               <TestElement ID="5">
+                  <PlugIn Name="ESA620" TestID="230"/>
+                  <Info>
+                     <Type>Mains Voltage</Type>
+                     <Parameter>Live to Earth</Parameter>
+                     <Name>Live to Earth</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                        <Limit Key="::ST">
+                           <Unit>V</Unit>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+            </TestElement>
+            <TestElement ID="7">
+               <PlugIn Name="ESA620" TestID="1000"/>
+               <Info>
+                  <Type>Insulation Resistance</Type>
+                  <Name>Insulation Resistance</Name>
+               </Info>
+               <Filter>
+                  <IncludeInReport/>
+               </Filter>
+               <ExpectedResult>
+                  <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                     <Limit Key="::ST">
+                        <Unit>MOhm</Unit>
+                     </Limit>
+                  </Standard>
+               </ExpectedResult>
+               <PlugInData PlugIn="ESA620">
+                  <ValueFilter>None</ValueFilter>
+                  <EnableBtn Skip="True" NA="True" Step="True"/>
+                  <ModuleOptions Sep="False" Exp="False" Stop="False" Override="True">
+                     <PlugInData PlugIn="ESA620">
+                        <ModuleSetup/>
+                     </PlugInData>
+                  </ModuleOptions>
+                  <TestOptions MAPVoltage="0" MAPPolarity="0" MAPCurrent="0" PLConfiguration="0" Duration="2" PowerOff="0">
+                     <Run Opt="False" HaltOnFail="True" MultiPE="False" TotalLeakage="False" MeasType="0" TestVoltage="0" AppliedParts="0"/>
+                     <StopOnPC Before="False" After="False"/>
+                     <Delay On="2" Off="0"/>
+                  </TestOptions>
+               </PlugInData>
+               <TestElement ID="8">
+                  <PlugIn Name="ESA620" TestID="1010"/>
+                  <Info>
+                     <Type>Insulation Resistance</Type>
+                     <Parameter>Mains to Protective Earth</Parameter>
+                     <Name>Mains to Protective Earth</Name>
+                     <Procedure Format="1">
+                        <![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang1033\f0\fs24 
+\par }
+]]>
+                     </Procedure>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)" Type="Predefined">
+                        <Limit Key="::ST">
+                           <Unit>MOhm</Unit>
+                           <Value Type="Low">7</Value>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+               <TestElement ID="24">
+                  <PlugIn Name="ESA620" TestID="1020"/>
+                  <Info>
+                     <Type>Insulation Resistance</Type>
+                     <Parameter>Applied Parts to Protective Earth</Parameter>
+                     <Name>Applied Parts to Protective Earth</Name>
+                     <Procedure Format="1">
+                        <![CDATA[{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}}
+\viewkind4\uc1\pard\lang1033\f0\fs24 
+\par }
+]]>
+                     </Procedure>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                        <Limit Key="::ST">
+                           <Unit>MOhm</Unit>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+            </TestElement>
+            <TestElement ID="10">
+               <PlugIn Name="ESA620" TestID="1200"/>
+               <Info>
+                  <Type>Enclosure Leakage Current</Type>
+                  <Name>Enclosure Leakage Current</Name>
+               </Info>
+               <Filter>
+                  <IncludeInReport/>
+               </Filter>
+               <ExpectedResult>
+                  <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                     <Limit Key="::ST">
+                        <Unit>uA</Unit>
+                     </Limit>
+                  </Standard>
+               </ExpectedResult>
+               <PlugInData PlugIn="ESA620">
+                  <ValueFilter>None</ValueFilter>
+                  <EnableBtn Skip="True" NA="True" Step="True"/>
+                  <ModuleOptions Sep="False" Exp="False" Stop="False" Override="True">
+                     <PlugInData PlugIn="ESA620">
+                        <ModuleSetup/>
+                     </PlugInData>
+                  </ModuleOptions>
+                  <TestOptions MAPVoltage="0" MAPPolarity="0" MAPCurrent="0" PLConfiguration="0" Duration="2" PowerOff="0">
+                     <Run Opt="False" HaltOnFail="True" MultiPE="False" TotalLeakage="False" MeasType="0" TestVoltage="0" AppliedParts="0"/>
+                     <StopOnPC Before="False" After="False"/>
+                     <Delay On="2" Off="0"/>
+                  </TestOptions>
+               </PlugInData>
+               <TestElement ID="11">
+                  <PlugIn Name="ESA620" TestID="1230"/>
+                  <Info>
+                     <Type>Enclosure Leakage Current</Type>
+                     <Parameter>Open Earth</Parameter>
+                     <Name>Open Earth</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                        <Limit Key="::ST">
+                           <Unit>uA</Unit>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+               <TestElement ID="12">
+                  <PlugIn Name="ESA620" TestID="1260"/>
+                  <Info>
+                     <Type>Enclosure Leakage Current</Type>
+                     <Parameter>Open Earth, Reversed Mains</Parameter>
+                     <Name>Open Earth, Reversed Mains</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                        <Limit Key="::ST">
+                           <Unit>uA</Unit>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+            </TestElement>
+            <TestElement ID="13">
+               <PlugIn Name="ESA620" TestID="1300"/>
+               <Info>
+                  <Type>Patient Leakage Current</Type>
+                  <Name>Patient Leakage Current</Name>
+               </Info>
+               <Filter>
+                  <IncludeInReport/>
+               </Filter>
+               <ExpectedResult>
+                  <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                     <Limit Key="::B">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::BF">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::CF">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::B_DC">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::BF_DC">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::CF_DC">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::B_ACTOT">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::BF_ACTOT">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::CF_ACTOT">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::B_DCTOT">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::BF_DCTOT">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::CF_DCTOT">
+                        <Unit>uA</Unit>
+                     </Limit>
+                  </Standard>
+               </ExpectedResult>
+               <PlugInData PlugIn="ESA620">
+                  <ValueFilter>None</ValueFilter>
+                  <EnableBtn Skip="True" NA="True" Step="True"/>
+                  <ModuleOptions Sep="False" Exp="False" Stop="False" Override="True">
+                     <PlugInData PlugIn="ESA620">
+                        <ModuleSetup/>
+                     </PlugInData>
+                  </ModuleOptions>
+                  <TestOptions MAPVoltage="0" MAPPolarity="0" MAPCurrent="0" PLConfiguration="0" Duration="2" PowerOff="0">
+                     <Run Opt="False" HaltOnFail="True" MultiPE="False" TotalLeakage="False" MeasType="0" TestVoltage="0" AppliedParts="0"/>
+                     <StopOnPC Before="False" After="False"/>
+                     <Delay On="2" Off="0"/>
+                  </TestOptions>
+               </PlugInData>
+               <TestElement ID="14">
+                  <PlugIn Name="ESA620" TestID="1310"/>
+                  <Info>
+                     <Type>Patient Leakage Current</Type>
+                     <Parameter>Normal Condition</Parameter>
+                     <Name>Normal Condition</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)" Type="Predefined">
+                        <Limit Key="::B">
+                           <Unit>uA</Unit>
+                           <Value Type="High">100</Value>
+                        </Limit>
+                        <Limit Key="::BF">
+                           <Unit>uA</Unit>
+                           <Value Type="High">100</Value>
+                        </Limit>
+                        <Limit Key="::CF">
+                           <Unit>uA</Unit>
+                           <Value Type="High">10</Value>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+               <TestElement ID="15">
+                  <PlugIn Name="ESA620" TestID="1340"/>
+                  <Info>
+                     <Type>Patient Leakage Current</Type>
+                     <Parameter>Normal Condition, Reversed mains</Parameter>
+                     <Name>Normal Condition, Reversed mains</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)" Type="Predefined">
+                        <Limit Key="::B">
+                           <Unit>uA</Unit>
+                           <Value Type="High">100</Value>
+                        </Limit>
+                        <Limit Key="::BF">
+                           <Unit>uA</Unit>
+                           <Value Type="High">100</Value>
+                        </Limit>
+                        <Limit Key="::CF">
+                           <Unit>uA</Unit>
+                           <Value Type="High">10</Value>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+            </TestElement>
+            <TestElement ID="16">
+               <PlugIn Name="ESA620" TestID="1400"/>
+               <Info>
+                  <Type>Mains on Applied Parts</Type>
+                  <Name>Mains on Applied Parts</Name>
+               </Info>
+               <Filter>
+                  <IncludeInReport/>
+               </Filter>
+               <ExpectedResult>
+                  <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                     <Limit Key="::B">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::BF">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::CF">
+                        <Unit>uA</Unit>
+                     </Limit>
+                  </Standard>
+               </ExpectedResult>
+               <PlugInData PlugIn="ESA620">
+                  <ValueFilter>None</ValueFilter>
+                  <EnableBtn Skip="True" NA="True" Step="True"/>
+                  <ModuleOptions Sep="False" Exp="False" Stop="False" Override="True">
+                     <PlugInData PlugIn="ESA620">
+                        <ModuleSetup/>
+                     </PlugInData>
+                  </ModuleOptions>
+                  <TestOptions MAPVoltage="0" MAPPolarity="0" MAPCurrent="0" PLConfiguration="0" Duration="2" PowerOff="0">
+                     <Run Opt="False" HaltOnFail="True" MultiPE="False" TotalLeakage="False" MeasType="0" TestVoltage="0" AppliedParts="0"/>
+                     <StopOnPC Before="False" After="False"/>
+                     <Delay On="2" Off="0"/>
+                  </TestOptions>
+               </PlugInData>
+               <TestElement ID="17">
+                  <PlugIn Name="ESA620" TestID="1410"/>
+                  <Info>
+                     <Type>Mains on Applied Parts</Type>
+                     <Parameter>Single Fault Condition</Parameter>
+                     <Name>Single Fault Condition</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)" Type="Predefined">
+                        <Limit Key="::BF">
+                           <Unit>uA</Unit>
+                           <Value Type="High">5000</Value>
+                        </Limit>
+                        <Limit Key="::CF">
+                           <Unit>uA</Unit>
+                           <Value Type="High">50</Value>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+               <TestElement ID="18">
+                  <PlugIn Name="ESA620" TestID="1420"/>
+                  <Info>
+                     <Type>Mains on Applied Parts</Type>
+                     <Parameter>Single Fault Condition, Reversed Mains</Parameter>
+                     <Name>Single Fault Condition, Reversed Mains</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)" Type="Predefined">
+                        <Limit Key="::BF">
+                           <Unit>uA</Unit>
+                           <Value Type="High">5000</Value>
+                        </Limit>
+                        <Limit Key="::CF">
+                           <Unit>uA</Unit>
+                           <Value Type="High">50</Value>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+            </TestElement>
+            <TestElement ID="19">
+               <PlugIn Name="ESA620" TestID="1600"/>
+               <Info>
+                  <Type>Alternative Equipment Leakage</Type>
+                  <Name>Alternative Equipment Leakage</Name>
+               </Info>
+               <Filter>
+                  <IncludeInReport/>
+               </Filter>
+               <ExpectedResult>
+                  <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                     <Limit Key="::ST">
+                        <Unit>uA</Unit>
+                     </Limit>
+                  </Standard>
+               </ExpectedResult>
+               <PlugInData PlugIn="ESA620">
+                  <ValueFilter>None</ValueFilter>
+                  <EnableBtn Skip="True" NA="True" Step="True"/>
+                  <ModuleOptions Sep="False" Exp="False" Stop="False" Override="True">
+                     <PlugInData PlugIn="ESA620">
+                        <ModuleSetup/>
+                     </PlugInData>
+                  </ModuleOptions>
+                  <TestOptions MAPVoltage="0" MAPPolarity="0" MAPCurrent="0" PLConfiguration="0" Duration="2" PowerOff="0">
+                     <Run Opt="False" HaltOnFail="True" MultiPE="False" TotalLeakage="False" MeasType="0" TestVoltage="0" AppliedParts="0"/>
+                     <StopOnPC Before="False" After="False"/>
+                     <Delay On="2" Off="0"/>
+                  </TestOptions>
+               </PlugInData>
+               <TestElement ID="20">
+                  <PlugIn Name="ESA620" TestID="1610"/>
+                  <Info>
+                     <Type>Alternative Equipment Leakage</Type>
+                     <Parameter>Closed Earth</Parameter>
+                     <Name>Closed Earth</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                        <Limit Key="::ST">
+                           <Unit>uA</Unit>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+               <TestElement ID="21">
+                  <PlugIn Name="ESA620" TestID="1620"/>
+                  <Info>
+                     <Type>Alternative Equipment Leakage</Type>
+                     <Parameter>Open Earth</Parameter>
+                     <Name>Open Earth</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                        <Limit Key="::ST">
+                           <Unit>uA</Unit>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+            </TestElement>
+            <TestElement ID="22">
+               <PlugIn Name="ESA620" TestID="900"/>
+               <Info>
+                  <Type>Alternative Applied Part Leakage</Type>
+                  <Name>Alternative Applied Part Leakage</Name>
+               </Info>
+               <Filter>
+                  <IncludeInReport/>
+               </Filter>
+               <ExpectedResult>
+                  <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)">
+                     <Limit Key="::B">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::BF">
+                        <Unit>uA</Unit>
+                     </Limit>
+                     <Limit Key="::CF">
+                        <Unit>uA</Unit>
+                     </Limit>
+                  </Standard>
+               </ExpectedResult>
+               <PlugInData PlugIn="ESA620">
+                  <ValueFilter>None</ValueFilter>
+                  <EnableBtn Skip="True" NA="True" Step="True"/>
+                  <ModuleOptions Sep="False" Exp="False" Stop="False" Override="True">
+                     <PlugInData PlugIn="ESA620">
+                        <ModuleSetup/>
+                     </PlugInData>
+                  </ModuleOptions>
+                  <TestOptions MAPVoltage="0" MAPPolarity="0" MAPCurrent="0" PLConfiguration="0" Duration="2" PowerOff="0">
+                     <Run Opt="False" HaltOnFail="True" MultiPE="False" TotalLeakage="False" MeasType="0" TestVoltage="0" AppliedParts="0"/>
+                     <StopOnPC Before="False" After="False"/>
+                     <Delay On="2" Off="0"/>
+                  </TestOptions>
+               </PlugInData>
+               <TestElement ID="23">
+                  <PlugIn Name="ESA620" TestID="910"/>
+                  <Info>
+                     <Type>Alternative Applied Part Leakage</Type>
+                     <Parameter>Normal Condition</Parameter>
+                     <Name>Normal Condition</Name>
+                  </Info>
+                  <Filter>
+                     <IncludeInReport/>
+                  </Filter>
+                  <ExpectedResult>
+                     <Standard AlphaName="VDE" CompleteName="VDE 751.1 (CL2)" Type="Predefined">
+                        <Limit Key="::BF">
+                           <Unit>uA</Unit>
+                           <Value Type="High">5000</Value>
+                        </Limit>
+                        <Limit Key="::CF">
+                           <Unit>uA</Unit>
+                           <Value Type="High">50</Value>
+                        </Limit>
+                     </Standard>
+                  </ExpectedResult>
+               </TestElement>
+            </TestElement>
+         </TestElement>
+      </TemplateData>
+   </Template>
+</METRONFile>

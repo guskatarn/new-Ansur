@@ -1,0 +1,44 @@
+appId: fr.consortnt.ansur-replacement
+productName: ANSUR Replacement
+copyright: Copyright © 2025 CONSORT NT
+
+directories:
+  output: release
+  buildResources: build
+
+# Fichiers inclus dans le paquet (les node_modules production sont
+# ajoutés automatiquement par electron-builder depuis package.json)
+files:
+  - dist/**
+  - dist-electron/**
+  - package.json
+
+# serialport/@serialport/bindings-cpp contient des fichiers .node natifs.
+# Ils doivent être extraits hors de l'asar — require() ne peut pas charger
+# des modules natifs depuis l'intérieur d'une archive asar.
+asarUnpack:
+  - "**/node_modules/@serialport/**"
+  - "**/node_modules/serialport/**"
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  runAfterFinish: true
+  installerLanguages:
+    - French
+  artifactName: ANSURReplacement-Setup-${version}.exe
+
+portable:
+  artifactName: ANSURReplacement-Portable-${version}.exe
