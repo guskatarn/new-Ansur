@@ -2,6 +2,7 @@
   "name": "ansur-replacement",
   "version": "0.1.0",
   "description": "Application desktop de remplacement d'ANSUR - automatisation de tests biomédicaux",
+  "author": "CONSORT NT",
   "main": "dist-electron/electron/main.js",
   "scripts": {
     "dev": "vite",

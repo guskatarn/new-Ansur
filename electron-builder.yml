@@ -22,6 +22,11 @@ asarUnpack:
 
 win:
   icon: build/icon.ico
+  # Pas de certificat de signature — désactivé explicitement.
+  # Windows affichera un avertissement SmartScreen au premier lancement ;
+  # ajouter WIN_CSC_LINK + WIN_CSC_KEY_PASSWORD pour signer si besoin.
+  signingHashAlgorithms: []
+  sign: null
   target:
     - target: nsis
       arch:
@@ -37,7 +42,7 @@ nsis:
   createStartMenuShortcut: true
   runAfterFinish: true
   installerLanguages:
-    - French
+    - fr_FR
   artifactName: ANSURReplacement-Setup-${version}.exe
 
 portable:
