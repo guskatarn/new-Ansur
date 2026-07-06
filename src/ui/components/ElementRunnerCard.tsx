@@ -8,16 +8,39 @@ interface Props {
   onChange: (updated: DraftResult) => void;
 }
 
+/**
+ * Commandes QA-ES dont sendCommand() exige des paramètres (pédale Cut/Coag,
+ * charge, délai) que QaesDriver ne peut pas deviner — voir QaesDriver.ts.
+ */
+const QAES_GENOUT = 'QAES:GENOUT';
+const QAES_HFLK = 'QAES:HFLK';
+
 export function ElementRunnerCard({ element, result, onChange }: Props): React.ReactElement {
   const [measuring, setMeasuring] = useState(false);
   const [measureMessage, setMeasureMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const [footswitch, setFootswitch] = useState<'' | 'CUT' | 'COAG'>('');
+  const [loadOhms, setLoadOhms] = useState('');
+  const [delayTenths, setDelayTenths] = useState('');
+
+  const commandId = element.instrumentCommandId;
+  const needsGenoutParams = commandId === QAES_GENOUT;
+  const needsHflkParams = commandId === QAES_HFLK;
+  const needsQaesParams = needsGenoutParams || needsHflkParams;
+  const qaesParamsReady = !needsQaesParams || (footswitch !== '' && (!needsGenoutParams || loadOhms.trim() !== ''));
 
   const handleAutoMeasure = async (): Promise<void> => {
-    const commandId = element.instrumentCommandId;
     if (commandId === undefined) return;
     setMeasuring(true);
     setMeasureMessage(null);
-    const outcome = await window.ansurAPI.instruments.runMeasurement(commandId);
+
+    let params: Record<string, string | number> | undefined;
+    if (needsQaesParams) {
+      params = { footswitch };
+      if (needsGenoutParams) params['loadOhms'] = Number(loadOhms);
+      if (delayTenths.trim() !== '') params['delayTenths'] = Number(delayTenths);
+    }
+
+    const outcome = await window.ansurAPI.instruments.runMeasurement(commandId, params);
     setMeasuring(false);
 
     if (!outcome.success) {
@@ -70,14 +93,61 @@ export function ElementRunnerCard({ element, result, onChange }: Props): React.R
         </div>
       )}
 
+      {/* ── Paramètres QA-ES (pédale / charge / délai) ──────────────────── */}
+      {needsQaesParams && (
+        <div style={styles.qaesParamsBox}>
+          <span style={styles.qaesParamsTitle}>Paramètres requis avant mesure</span>
+          <div style={styles.qaesParamsRow}>
+            <label style={styles.qaesParamLabel} htmlFor={`footswitch-${element.id}`}>Pédale</label>
+            <select
+              id={`footswitch-${element.id}`}
+              value={footswitch}
+              onChange={(e) => { setFootswitch(e.target.value as '' | 'CUT' | 'COAG'); }}
+              style={styles.qaesParamSelect}
+            >
+              <option value="">— Choisir —</option>
+              <option value="CUT">Cut</option>
+              <option value="COAG">Coag</option>
+            </select>
+
+            {needsGenoutParams && (
+              <>
+                <label style={styles.qaesParamLabel} htmlFor={`load-${element.id}`}>Charge (ohms)</label>
+                <input
+                  id={`load-${element.id}`}
+                  type="number"
+                  value={loadOhms}
+                  onChange={(e) => { setLoadOhms(e.target.value); }}
+                  style={styles.qaesParamInput}
+                  placeholder="ex. 100"
+                />
+              </>
+            )}
+
+            <label style={styles.qaesParamLabel} htmlFor={`delay-${element.id}`}>
+              Délai (1/10 s, défaut 20)
+            </label>
+            <input
+              id={`delay-${element.id}`}
+              type="number"
+              value={delayTenths}
+              onChange={(e) => { setDelayTenths(e.target.value); }}
+              style={styles.qaesParamInput}
+              placeholder="20"
+            />
+          </div>
+        </div>
+      )}
+
       {/* ── Mesure automatique ───────────────────────────────────────────── */}
       {element.instrumentCommandId !== undefined && (
         <div style={styles.autoMeasureRow}>
           <button
             type="button"
             onClick={() => { void handleAutoMeasure(); }}
-            disabled={measuring}
-            style={measuring ? styles.btnAutoMeasureDisabled : styles.btnAutoMeasure}
+            disabled={measuring || !qaesParamsReady}
+            style={measuring || !qaesParamsReady ? styles.btnAutoMeasureDisabled : styles.btnAutoMeasure}
+            title={!qaesParamsReady ? 'Renseignez les paramètres requis ci-dessus.' : undefined}
           >
             {measuring ? 'Mesure en cours…' : '⚡ Mesurer automatiquement'}
           </button>
@@ -346,6 +416,44 @@ const styles = {
     color: '#212529',
     whiteSpace: 'pre-wrap' as const,
     lineHeight: '1.5',
+  },
+  qaesParamsBox: {
+    background: '#fff8e6',
+    border: '1px solid #ffe69c',
+    borderRadius: '6px',
+    padding: '10px 14px',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '8px',
+  },
+  qaesParamsTitle: {
+    fontSize: '12px',
+    fontWeight: 600 as const,
+    color: '#664d03',
+  },
+  qaesParamsRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    flexWrap: 'wrap' as const,
+  },
+  qaesParamLabel: {
+    fontSize: '12px',
+    color: '#495057',
+  },
+  qaesParamSelect: {
+    padding: '5px 8px',
+    fontSize: '13px',
+    border: '1px solid #ced4da',
+    borderRadius: '4px',
+    background: '#fff',
+  },
+  qaesParamInput: {
+    padding: '5px 8px',
+    fontSize: '13px',
+    border: '1px solid #ced4da',
+    borderRadius: '4px',
+    width: '90px',
   },
   autoMeasureRow: {
     display: 'flex',
