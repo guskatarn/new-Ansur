@@ -15,25 +15,60 @@ interface Props {
   onBack: () => void;
 }
 
+interface InstrumentCardConfig {
+  key: string;
+  title: string;
+  note: string;
+  connect: (portPath: string) => Promise<{ success: true } | { success: false; error: string }>;
+  disconnect: () => Promise<void>;
+  status: () => Promise<InstrumentStatus>;
+}
+
+const INSTRUMENTS: readonly InstrumentCardConfig[] = [
+  {
+    key: 'esa620',
+    title: 'ESA620 — Analyseur de sécurité électrique',
+    note: "Communique via port série RS-232 ou adaptateur USB-Série (115200 bauds).",
+    connect: (p) => window.ansurAPI.instruments.connectEsa620(p),
+    disconnect: () => window.ansurAPI.instruments.disconnectEsa620(),
+    status: () => window.ansurAPI.instruments.statusEsa620(),
+  },
+  {
+    key: 'qaes',
+    title: 'QA-ES III — Analyseur d\'électrochirurgie',
+    note: "Communique via port USB virtuel (FTDI) ou Bluetooth (115200 bauds).",
+    connect: (p) => window.ansurAPI.instruments.connectQaes(p),
+    disconnect: () => window.ansurAPI.instruments.disconnectQaes(),
+    status: () => window.ansurAPI.instruments.statusQaes(),
+  },
+  {
+    key: 'impulse',
+    title: 'Impulse 6000D/7000DP — Simulateur/analyseur de défibrillateur',
+    note: "Communique via port USB virtuel (FTDI) (115200 bauds).",
+    connect: (p) => window.ansurAPI.instruments.connectImpulse(p),
+    disconnect: () => window.ansurAPI.instruments.disconnectImpulse(),
+    status: () => window.ansurAPI.instruments.statusImpulse(),
+  },
+  {
+    key: 'ida4',
+    title: 'IDA-4 Plus — Analyseur de pompe à perfusion',
+    note: "Communique via port série RS-232 ou adaptateur USB-Série (19200 bauds). " +
+      "Driver non confirmé sur matériel réel — à valider avant tout usage en conditions réelles.",
+    connect: (p) => window.ansurAPI.instruments.connectIda4(p),
+    disconnect: () => window.ansurAPI.instruments.disconnectIda4(),
+    status: () => window.ansurAPI.instruments.statusIda4(),
+  },
+];
+
 export function InstrumentView({ onBack }: Props): React.ReactElement {
   const [ports, setPorts] = useState<Port[]>([]);
-  const [selectedPort, setSelectedPort] = useState<string>('');
-  const [status, setStatus] = useState<InstrumentStatus>({ connected: false, portPath: null });
-  const [connecting, setConnecting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
-
-  const fetchStatus = useCallback(async (): Promise<void> => {
-    const s = await window.ansurAPI.instruments.statusEsa620();
-    setStatus(s);
-  }, []);
 
   const fetchPorts = useCallback(async (): Promise<void> => {
     setRefreshing(true);
     try {
       const list = await window.ansurAPI.instruments.listPorts();
       setPorts(list);
-      setSelectedPort((prev) => (prev === '' && list.length > 0 ? list[0]!.path : prev));
     } finally {
       setRefreshing(false);
     }
@@ -41,16 +76,66 @@ export function InstrumentView({ onBack }: Props): React.ReactElement {
 
   useEffect(() => {
     void fetchPorts();
+  }, [fetchPorts]);
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.topBar}>
+        <button type="button" onClick={onBack} style={styles.btnBack}>← Retour</button>
+        <span style={styles.title}>Instruments</span>
+      </div>
+
+      <div style={styles.body}>
+        {INSTRUMENTS.map((instrument) => (
+          <InstrumentCard
+            key={instrument.key}
+            config={instrument}
+            ports={ports}
+            refreshing={refreshing}
+            onRefreshPorts={fetchPorts}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function InstrumentCard({
+  config,
+  ports,
+  refreshing,
+  onRefreshPorts,
+}: {
+  config: InstrumentCardConfig;
+  ports: Port[];
+  refreshing: boolean;
+  onRefreshPorts: () => Promise<void>;
+}): React.ReactElement {
+  const [selectedPort, setSelectedPort] = useState<string>('');
+  const [status, setStatus] = useState<InstrumentStatus>({ connected: false, portPath: null });
+  const [connecting, setConnecting] = useState(false);
+  const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
+
+  const fetchStatus = useCallback(async (): Promise<void> => {
+    const s = await config.status();
+    setStatus(s);
+  }, [config]);
+
+  useEffect(() => {
     void fetchStatus();
     const interval = setInterval(() => { void fetchStatus(); }, 2000);
     return () => { clearInterval(interval); };
-  }, [fetchPorts, fetchStatus]);
+  }, [fetchStatus]);
+
+  useEffect(() => {
+    setSelectedPort((prev) => (prev === '' && ports.length > 0 ? ports[0]!.path : prev));
+  }, [ports]);
 
   const handleConnect = async (): Promise<void> => {
     if (selectedPort === '') return;
     setConnecting(true);
     setMessage(null);
-    const result = await window.ansurAPI.instruments.connectEsa620(selectedPort);
+    const result = await config.connect(selectedPort);
     setConnecting(false);
     if (result.success) {
       await fetchStatus();
@@ -63,7 +148,7 @@ export function InstrumentView({ onBack }: Props): React.ReactElement {
   const handleDisconnect = async (): Promise<void> => {
     setConnecting(true);
     setMessage(null);
-    await window.ansurAPI.instruments.disconnectEsa620();
+    await config.disconnect();
     setConnecting(false);
     await fetchStatus();
     setMessage({ text: 'Déconnecté', isError: false });
@@ -71,98 +156,85 @@ export function InstrumentView({ onBack }: Props): React.ReactElement {
 
   const handleRefresh = async (): Promise<void> => {
     setMessage(null);
-    await fetchPorts();
+    await onRefreshPorts();
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.topBar}>
-        <button type="button" onClick={onBack} style={styles.btnBack}>← Retour</button>
-        <span style={styles.title}>Instruments</span>
+    <div style={styles.card}>
+      <div style={styles.cardHeader}>
+        <h2 style={styles.cardTitle}>{config.title}</h2>
+        <StatusBadge connected={status.connected} />
       </div>
 
-      <div style={styles.body}>
-        {/* ── ESA620 ────────────────────────────────────────────────────── */}
-        <div style={styles.card}>
-          <div style={styles.cardHeader}>
-            <h2 style={styles.cardTitle}>ESA620 — Analyseur de sécurité électrique</h2>
-            <StatusBadge connected={status.connected} />
+      <div style={styles.cardBody}>
+        {status.connected && status.portPath !== null && (
+          <div style={styles.connectedInfo}>
+            Connecté sur <span style={styles.portHighlight}>{status.portPath}</span>
           </div>
+        )}
 
-          <div style={styles.cardBody}>
-            {status.connected && status.portPath !== null && (
-              <div style={styles.connectedInfo}>
-                Connecté sur <span style={styles.portHighlight}>{status.portPath}</span>
-              </div>
-            )}
-
-            {!status.connected && (
-              <div style={styles.portRow}>
-                <label style={styles.portLabel} htmlFor="port-select">Port COM</label>
-                <select
-                  id="port-select"
-                  value={selectedPort}
-                  onChange={(e) => { setSelectedPort(e.target.value); }}
-                  style={styles.portSelect}
-                  disabled={ports.length === 0 || refreshing}
-                >
-                  {ports.length === 0 && (
-                    <option value="">Aucun port détecté</option>
-                  )}
-                  {ports.map((p) => (
-                    <option key={p.path} value={p.path}>
-                      {p.path}{p.manufacturer !== null ? ` — ${p.manufacturer}` : ''}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => { void handleRefresh(); }}
-                  disabled={refreshing}
-                  style={styles.btnRefresh}
-                  title="Rafraîchir la liste des ports série disponibles"
-                >
-                  {refreshing ? '…' : '↻ Actualiser'}
-                </button>
-              </div>
-            )}
-
-            <div style={styles.actionRow}>
-              {!status.connected ? (
-                <button
-                  type="button"
-                  onClick={() => { void handleConnect(); }}
-                  disabled={connecting || selectedPort === '' || ports.length === 0}
-                  style={connecting || selectedPort === '' || ports.length === 0
-                    ? styles.btnDisabled
-                    : styles.btnConnect}
-                >
-                  {connecting ? 'Connexion…' : '⚡ Connecter'}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => { void handleDisconnect(); }}
-                  disabled={connecting}
-                  style={connecting ? styles.btnDisabled : styles.btnDisconnect}
-                >
-                  {connecting ? 'Déconnexion…' : '✕ Déconnecter'}
-                </button>
+        {!status.connected && (
+          <div style={styles.portRow}>
+            <label style={styles.portLabel} htmlFor={`port-select-${config.key}`}>Port COM</label>
+            <select
+              id={`port-select-${config.key}`}
+              value={selectedPort}
+              onChange={(e) => { setSelectedPort(e.target.value); }}
+              style={styles.portSelect}
+              disabled={ports.length === 0 || refreshing}
+            >
+              {ports.length === 0 && (
+                <option value="">Aucun port détecté</option>
               )}
-            </div>
-
-            {message !== null && (
-              <div role={message.isError ? 'alert' : 'status'} style={message.isError ? styles.msgError : styles.msgSuccess}>
-                {message.text}
-              </div>
-            )}
+              {ports.map((p) => (
+                <option key={p.path} value={p.path}>
+                  {p.path}{p.manufacturer !== null ? ` — ${p.manufacturer}` : ''}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => { void handleRefresh(); }}
+              disabled={refreshing}
+              style={styles.btnRefresh}
+              title="Rafraîchir la liste des ports série disponibles"
+            >
+              {refreshing ? '…' : '↻ Actualiser'}
+            </button>
           </div>
+        )}
+
+        <div style={styles.actionRow}>
+          {!status.connected ? (
+            <button
+              type="button"
+              onClick={() => { void handleConnect(); }}
+              disabled={connecting || selectedPort === '' || ports.length === 0}
+              style={connecting || selectedPort === '' || ports.length === 0
+                ? styles.btnDisabled
+                : styles.btnConnect}
+            >
+              {connecting ? 'Connexion…' : '⚡ Connecter'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => { void handleDisconnect(); }}
+              disabled={connecting}
+              style={connecting ? styles.btnDisabled : styles.btnDisconnect}
+            >
+              {connecting ? 'Déconnexion…' : '✕ Déconnecter'}
+            </button>
+          )}
         </div>
 
-        <div style={styles.note}>
-          L'ESA620 communique via port série RS-232 ou adaptateur USB-Série. Assurez-vous que
-          le pilote USB-Série est installé et que l'appareil est sous tension avant de connecter.
-        </div>
+        {message !== null && (
+          <div role={message.isError ? 'alert' : 'status'} style={message.isError ? styles.msgError : styles.msgSuccess}>
+            {message.text}
+          </div>
+        )}
+
+        <div style={styles.note}>{config.note}</div>
       </div>
     </div>
   );
@@ -262,6 +334,5 @@ const styles = {
   },
   note: {
     fontSize: '12px', color: '#6c757d', lineHeight: 1.6,
-    background: '#fff', border: '1px solid #e9ecef', borderRadius: '8px', padding: '12px 18px',
   },
 } as const;

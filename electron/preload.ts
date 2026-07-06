@@ -139,6 +139,48 @@ const ansurAPI = {
     /** Retourne l'état de connexion courant de l'ESA620. */
     statusEsa620: (): Promise<{ connected: boolean; portPath: string | null }> =>
       ipcRenderer.invoke('instruments:status-esa620'),
+
+    /** Tente de connecter le QA-ES III sur le port indiqué. */
+    connectQaes: (
+      portPath: string,
+    ): Promise<{ success: true } | { success: false; error: string }> =>
+      ipcRenderer.invoke('instruments:connect-qaes', portPath),
+
+    /** Déconnecte le QA-ES III. */
+    disconnectQaes: (): Promise<void> =>
+      ipcRenderer.invoke('instruments:disconnect-qaes'),
+
+    /** Retourne l'état de connexion courant du QA-ES III. */
+    statusQaes: (): Promise<{ connected: boolean; portPath: string | null }> =>
+      ipcRenderer.invoke('instruments:status-qaes'),
+
+    /** Tente de connecter l'Impulse 6000D/7000DP sur le port indiqué. */
+    connectImpulse: (
+      portPath: string,
+    ): Promise<{ success: true } | { success: false; error: string }> =>
+      ipcRenderer.invoke('instruments:connect-impulse', portPath),
+
+    /** Déconnecte l'Impulse. */
+    disconnectImpulse: (): Promise<void> =>
+      ipcRenderer.invoke('instruments:disconnect-impulse'),
+
+    /** Retourne l'état de connexion courant de l'Impulse. */
+    statusImpulse: (): Promise<{ connected: boolean; portPath: string | null }> =>
+      ipcRenderer.invoke('instruments:status-impulse'),
+
+    /** Tente de connecter l'IDA-4 Plus sur le port indiqué. */
+    connectIda4: (
+      portPath: string,
+    ): Promise<{ success: true } | { success: false; error: string }> =>
+      ipcRenderer.invoke('instruments:connect-ida4', portPath),
+
+    /** Déconnecte l'IDA-4 Plus. */
+    disconnectIda4: (): Promise<void> =>
+      ipcRenderer.invoke('instruments:disconnect-ida4'),
+
+    /** Retourne l'état de connexion courant de l'IDA-4 Plus. */
+    statusIda4: (): Promise<{ connected: boolean; portPath: string | null }> =>
+      ipcRenderer.invoke('instruments:status-ida4'),
   },
 };
 
