@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { NumericLimit, TestElement } from '../../domain/types.js';
 import type { DraftResult } from '../runnerTypes.js';
 
@@ -9,6 +9,41 @@ interface Props {
 }
 
 export function ElementRunnerCard({ element, result, onChange }: Props): React.ReactElement {
+  const [measuring, setMeasuring] = useState(false);
+  const [measureMessage, setMeasureMessage] = useState<{ text: string; isError: boolean } | null>(null);
+
+  const handleAutoMeasure = async (): Promise<void> => {
+    const commandId = element.instrumentCommandId;
+    if (commandId === undefined) return;
+    setMeasuring(true);
+    setMeasureMessage(null);
+    const outcome = await window.ansurAPI.instruments.runMeasurement(commandId);
+    setMeasuring(false);
+
+    if (!outcome.success) {
+      setMeasureMessage({ text: outcome.error, isError: true });
+      return;
+    }
+
+    if (typeof outcome.value === 'number') {
+      const limit = element.limit;
+      const hasRange = limit?.kind === 'numeric' && (limit.min !== undefined || limit.max !== undefined);
+      const newStatus = hasRange ? evaluateAgainstLimit(outcome.value, limit as NumericLimit) : result.status;
+      onChange({ ...result, measuredValue: String(outcome.value), status: newStatus });
+      setMeasureMessage({
+        text: `Mesure automatique : ${outcome.value}${outcome.unit !== null ? ` ${outcome.unit}` : ''}`,
+        isError: false,
+      });
+    } else {
+      // Valeur composite (ex. CSV multi-champs) : pas d'auto-remplissage
+      // numérique possible, décision manuelle requise par l'opérateur.
+      setMeasureMessage({
+        text: `Réponse de l'instrument (décision manuelle requise) : ${String(outcome.value)}`,
+        isError: false,
+      });
+    }
+  };
+
   return (
     <div style={styles.card}>
       {/* ── En-tête élément ─────────────────────────────────────────────── */}
@@ -32,6 +67,28 @@ export function ElementRunnerCard({ element, result, onChange }: Props): React.R
         <div style={styles.instructions}>
           <strong style={styles.instrLabel}>Instructions :</strong>
           <p style={styles.instrText}>{element.instructions}</p>
+        </div>
+      )}
+
+      {/* ── Mesure automatique ───────────────────────────────────────────── */}
+      {element.instrumentCommandId !== undefined && (
+        <div style={styles.autoMeasureRow}>
+          <button
+            type="button"
+            onClick={() => { void handleAutoMeasure(); }}
+            disabled={measuring}
+            style={measuring ? styles.btnAutoMeasureDisabled : styles.btnAutoMeasure}
+          >
+            {measuring ? 'Mesure en cours…' : '⚡ Mesurer automatiquement'}
+          </button>
+          {measureMessage !== null && (
+            <span
+              role={measureMessage.isError ? 'alert' : 'status'}
+              style={measureMessage.isError ? styles.autoMeasureError : styles.autoMeasureInfo}
+            >
+              {measureMessage.text}
+            </span>
+          )}
         </div>
       )}
 
@@ -289,6 +346,40 @@ const styles = {
     color: '#212529',
     whiteSpace: 'pre-wrap' as const,
     lineHeight: '1.5',
+  },
+  autoMeasureRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    flexWrap: 'wrap' as const,
+  },
+  btnAutoMeasure: {
+    padding: '7px 16px',
+    background: '#0056b3',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '13px',
+    fontWeight: 600 as const,
+  },
+  btnAutoMeasureDisabled: {
+    padding: '7px 16px',
+    background: '#e9ecef',
+    color: '#adb5bd',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'not-allowed',
+    fontSize: '13px',
+    fontWeight: 600 as const,
+  },
+  autoMeasureInfo: {
+    fontSize: '12px',
+    color: '#0a3622',
+  },
+  autoMeasureError: {
+    fontSize: '12px',
+    color: '#842029',
   },
   inputZone: {
     borderTop: '1px solid #e9ecef',

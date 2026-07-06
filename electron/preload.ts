@@ -181,6 +181,21 @@ const ansurAPI = {
     /** Retourne l'état de connexion courant de l'IDA-4 Plus. */
     statusIda4: (): Promise<{ connected: boolean; portPath: string | null }> =>
       ipcRenderer.invoke('instruments:status-ida4'),
+
+    /**
+     * Pilote automatiquement l'instrument connecté correspondant au préfixe
+     * de `commandId` (ex. "ESA620:210" → ESA620) : envoie la commande puis
+     * lit la mesure. Retourne une erreur explicite si aucun instrument
+     * compatible n'est connecté, si la commande n'est pas supportée, ou si
+     * des paramètres sont manquants (ex. dérivations patient, pédale QA-ES).
+     */
+    runMeasurement: (
+      commandId: string,
+      params?: Record<string, string | number>,
+    ): Promise<
+      | { success: true; value: number | boolean | string; unit: string | null; timestamp: string }
+      | { success: false; error: string }
+    > => ipcRenderer.invoke('instruments:run-measurement', commandId, params),
   },
 };
 
